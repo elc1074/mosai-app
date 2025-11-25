@@ -1,6 +1,6 @@
 # Acervo Artístico App
 
-Este projeto é um aplicativo web desenvolvido para a visualização e exploração do Acervo Artístico da [Instituição] (conectado via API Tainacan).
+Este projeto é um aplicativo web desenvolvido para a visualização e exploração do Acervo Artístico da Universidade Federal de Santa Maria, UFSM, conectado via API Tainacan.
 
 ## Funcionalidades Principais
 
