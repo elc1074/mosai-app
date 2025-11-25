@@ -6,7 +6,7 @@ Este projeto é um aplicativo web desenvolvido para a visualização e exploraç
 
 * **Catálogo Interativo**: Navegue por uma vasta coleção de obras de arte com paginação.
 * **Visualização Detalhada**: Acesse informações completas sobre cada obra, incluindo artista, data, técnica, material e dimensões.
-* **Filtros e Categorias**: Utilize filtros intuitivos (como *"Tudo"*, *"Destaques"*, *"Pinturas"*) para encontrar obras específicas.
+* **Filtros e Categorias**: Utilize filtros intuitivos (como *"Todas as obras"*, *"Murais"*, *"Pinturas"*) para encontrar obras específicas.
 * **Responsividade**: Experiência otimizada para dispositivos móveis e desktop.
 
 > Este é um projeto Next.js inicializado com `create-next-app`.
