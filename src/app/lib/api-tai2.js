@@ -3,109 +3,162 @@ export const UFSM_ACERV = "tainacan.ufsm.br/acervo-artistico";
 const collection = 2174;
 
 function normalizObr(itemObr) {
-  const thumb = obraItem.thumbnail;
+  const thumb = itemObr.thumbnail;
   return {
     id: itemObr.id,
     titulo: itemObr.title || 'notitle',
-    imgSrc: thumb?.medium?.[0] || null,
-    // artista: getArtist(obraItem),
+    imgSrc: thumb?.full?.[0] || thumb?.medium?.[0] || null,
     fullDataObra: itemObr,
   };
 }
 
-export async function getObras(perPage, page = 1) {
-  const BASE_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/collection/${collection}/items?perpage=${perPage}&paged=${page}&fetch_only=id,title,thumbnail,metadata`;
+// Adicionado parâmetro 'categoriaId' (padrão null = busca tudo)
+export async function getObras(perPage, page = 1, categoriaId = null) {
+  let url = `https://${UFSM_ACERV}/wp-json/tainacan/v2/collection/${collection}/items?perpage=${perPage}&paged=${page}&fetch_only=id,title,thumbnail,metadata`;
+  
+  // Se uma categoria for passada, adiciona o filtro de taxonomia (Designação: tnc_tax_4820)
+  if (categoriaId) {
+    url += `&taxquery[0][taxonomy]=tnc_tax_4820&taxquery[0][terms]=${categoriaId}`;
+  }
   
   try {
-    const resposta = await fetch(BASE_URL);
+    const resposta = await fetch(url);
+
     if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
 
     const dados = await resposta.json();
-    if (!dados.items) throw new Error("Nenhuma obra encontrada");
-
-    console.log(dados.items.length + "obras retornadas");
+    
+    // Se o filtro não retornar nada, devolve array vazio para não quebrar a tela
+    if (!dados.items) return [];
 
     return dados.items.map(normalizObr);
-
-    //console.log('obras formatadas', JSON.stringify(obrasFormatadas));
   } catch (erro) {
     console.error("Erro ao buscar obras:", erro);
     throw erro;
   }
 }
 
-export async function buscaObraPorId(id) {
-  const THUMB_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/items/${id}?fetch_only=id,thumbnail`;
-  let imagemThumb = null;
-  try {
-    const resposta = await fetch(THUMB_URL);
+// export async function buscaObraPorId(id) {
+//   const BASE_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/items/${id}?fetch_only=id,title,thumbnail,metadata,description,url,document_as_html`;
+//   try {
+//     const resposta = await fetch(BASE_URL);
+//     if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+//     const dados = await resposta.json();
+//     return normalizObr(dados); // Reutilizando a normalização simples ou crie uma específica
+//   } catch (erro) {
+//     console.error("Erro ao buscar obra:", erro);
+//     throw erro;
+//   }
+// }
 
-    if (!resposta.ok) throw new Error("erro http" + resposta.status);
+// // src/app/lib/tainacan-api.js
+// export const UFSM_ACERV = "tainacan.ufsm.br/acervo-artistico";
+// const collection = 2174;
 
-    const itemObra = await resposta.json();
-    // imagemThumb = itemObra.thumbnail?.medium?.[0] || null;
-    imagemThumb = itemObra.thumbnail?.full?.[0] || 
-                  itemObra.thumbnail?.medium?.[0] || 
-                  null;
-    // obraItem.thumbnail.medium?.[0] || obraItem.thumbnail.full?.[0]
-  } catch (err) {
-    console.error("erro ao buscar obra", err);
-    //throw err
-  }
+// function normalizObr(itemObr) {
+//   const thumb = obraItem.thumbnail;
+//   return {
+//     id: itemObr.id,
+//     titulo: itemObr.title || 'notitle',
+//     imgSrc: thumb?.medium?.[0] || null,
+//     // artista: getArtist(obraItem),
+//     fullDataObra: itemObr,
+//   };
+// }
 
-  const META_BASE_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/items/${id}`;
-  try {
-    const res = await fetch(META_BASE_URL);
+// export async function getObras(perPage, page = 1) {
+//   const BASE_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/collection/${collection}/items?perpage=${perPage}&paged=${page}&fetch_only=id,title,thumbnail,metadata`;
+  
+//   try {
+//     const resposta = await fetch(BASE_URL);
+//     if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
 
-    if (!res.ok) throw new Error("erro http" + res.status);
-    const item = await res.json();
+//     const dados = await resposta.json();
+//     if (!dados.items) throw new Error("Nenhuma obra encontrada");
 
-    const metadados = item?.metadata;
-    if (!metadados) return null;
+//     console.log(dados.items.length + "obras retornadas");
 
-    const getArtista = () => {
-      const tax = metadados.taxonomia;
-      // 1️⃣ forma mais simples — campo padrão no acervo da UFSM
-      const autor1 = tax?.value_as_string;
-      if (autor1 && autor1.trim()) return autor1.trim();
+//     return dados.items.map(normalizObr);
 
-      // 2️⃣ alternativa — array de objetos dentro de metadata.taxonomia.value
-      const autor2 = tax?.value?.[0]?.name;
-      if (autor2 && autor2.trim()) return autor2.trim();
-      return "noartist";
-    };
+//     //console.log('obras formatadas', JSON.stringify(obrasFormatadas));
+//   } catch (erro) {
+//     console.error("Erro ao buscar obras:", erro);
+//     throw erro;
+//   }
+// }
 
-    const getMetadados = (key) => {
-      if (!metadados || !metadados[key]) {
-        return "null";
-      }
-      // A API pode retornar 'value_as_string' ou 'value' direto
-      return metadados[key].value_as_string || metadados[key].value || "null";
-    };
+// export async function buscaObraPorId(id) {
+//   const THUMB_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/items/${id}?fetch_only=id,thumbnail`;
+//   let imagemThumb = null;
+//   try {
+//     const resposta = await fetch(THUMB_URL);
 
-    return {
-      id: item.id,
-      titulo: item.title || "notitle",
-      imgSrc: imagemThumb,
-      artista: getArtista(),
-      datAno: getMetadados("data-da-obra-2"),
-      tec: getMetadados("tecnica-3"),
-      material: getMetadados("material"),
-      dimensoes: getMetadados("dimensoes-com-emolduramento"),
-      sup: getMetadados("suporte"),
-      loc: getMetadados("localizacao"),
-      serie: getMetadados("serie-2"),
-      tema: getMetadados("tematica"),
-      mold: getMetadados("moldura"),
-      // Descrição (geralmente fora do metadata)
-      // desc: obraItem.description || "no_description",
-      url: item.url,
-    };
+//     if (!resposta.ok) throw new Error("erro http" + resposta.status);
 
-  } catch (err) {
-    console.error("erro ao buscar obra", err);
-  }
-}
+//     const itemObra = await resposta.json();
+//     // imagemThumb = itemObra.thumbnail?.medium?.[0] || null;
+//     imagemThumb = itemObra.thumbnail?.full?.[0] || 
+//                   itemObra.thumbnail?.medium?.[0] || 
+//                   null;
+//     // obraItem.thumbnail.medium?.[0] || obraItem.thumbnail.full?.[0]
+//   } catch (err) {
+//     console.error("erro ao buscar obra", err);
+//     //throw err
+//   }
+
+//   const META_BASE_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/items/${id}`;
+//   try {
+//     const res = await fetch(META_BASE_URL);
+
+//     if (!res.ok) throw new Error("erro http" + res.status);
+//     const item = await res.json();
+
+//     const metadados = item?.metadata;
+//     if (!metadados) return null;
+
+//     const getArtista = () => {
+//       const tax = metadados.taxonomia;
+//       // 1️⃣ forma mais simples — campo padrão no acervo da UFSM
+//       const autor1 = tax?.value_as_string;
+//       if (autor1 && autor1.trim()) return autor1.trim();
+
+//       // 2️⃣ alternativa — array de objetos dentro de metadata.taxonomia.value
+//       const autor2 = tax?.value?.[0]?.name;
+//       if (autor2 && autor2.trim()) return autor2.trim();
+//       return "noartist";
+//     };
+
+//     const getMetadados = (key) => {
+//       if (!metadados || !metadados[key]) {
+//         return "null";
+//       }
+//       // A API pode retornar 'value_as_string' ou 'value' direto
+//       return metadados[key].value_as_string || metadados[key].value || "null";
+//     };
+
+//     return {
+//       id: item.id,
+//       titulo: item.title || "notitle",
+//       imgSrc: imagemThumb,
+//       artista: getArtista(),
+//       datAno: getMetadados("data-da-obra-2"),
+//       tec: getMetadados("tecnica-3"),
+//       material: getMetadados("material"),
+//       dimensoes: getMetadados("dimensoes-com-emolduramento"),
+//       sup: getMetadados("suporte"),
+//       loc: getMetadados("localizacao"),
+//       serie: getMetadados("serie-2"),
+//       tema: getMetadados("tematica"),
+//       mold: getMetadados("moldura"),
+//       // Descrição (geralmente fora do metadata)
+//       // desc: obraItem.description || "no_description",
+//       url: item.url,
+//     };
+
+//   } catch (err) {
+//     console.error("erro ao buscar obra", err);
+//   }
+// }
 
 
 

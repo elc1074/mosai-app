@@ -6,26 +6,32 @@ import { Loader } from "@/components/loader";
 
 import styles from './styles/page.module.css';
 
+const filtros={
+  todas: null,
+  murais: 315,
+  pinturas: 40,
+};
+
 export function Header({ activeTab, setActiveTab }) {
   return (
     <header className={styles.topbar}>
       <h1 className={styles.heading}>Obras</h1>
       <nav className={styles.navi}>
         <button
-          className={activeTab === "all" ? styles.tabActive : styles.tab}
-          onClick={() => setActiveTab("all")}
+          className={activeTab === "todas" ? styles.tabActive : styles.tab}
+          onClick={() => setActiveTab("todas")}
         >
-          Tudo
+          Todas
         </button>
         <button
-          className={activeTab === "high" ? styles.tabActive : styles.tab}
-          onClick={() => setActiveTab("high")}
+          className={activeTab === "murais" ? styles.tabActive : styles.tab}
+          onClick={() => setActiveTab("murais")}
         >
-          Destaques
+          Murais
         </button>
         <button
-          className={activeTab === "pin" ? styles.tabActive : styles.tab}
-          onClick={() => setActiveTab("pin")}
+          className={activeTab === "pinturas" ? styles.tabActive : styles.tab}
+          onClick={() => setActiveTab("pinturas")}
         >
           Pinturas
         </button>
@@ -36,13 +42,10 @@ export function Header({ activeTab, setActiveTab }) {
 
 function CardObra({ obra }) {
   return (
-    // O Link agora envolve todo o card
-    // prefetch para forcar o carregamento da pagina
 
     <Link 
       href={`/obras/${obra.id}`} 
       className={styles.card} 
-      // prefetch={true}
     >
       {obra.imgSrc ? (
         <img 
@@ -56,7 +59,8 @@ function CardObra({ obra }) {
         <div className={styles.imgph}>🖼️</div>
       )}
       <div className={styles.inf}>
-        <h3>{obra.titulo}</h3>
+        {/* <h3>{obra.titulo}</h3> */}
+        <strong>{obra.titulo}</strong>
       </div>
     </Link>
   );
@@ -67,17 +71,27 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
-  const [activeTab, setActiveTab]=useState('all');
+  const [activeTab, setActiveTab]=useState('todas');
   const perPage = 20;
 
   useEffect(() => {
-    getObras(perPage, page)
+
+    setLoading(true);
+
+    const categoriaId=filtros[activeTab];
+
+    getObras(perPage, page, categoriaId)
       .then(setObras)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [page]);
+  }, [page, activeTab]); // recarrega quando muda a pagina ou aba
 
   console.log(obras);
+
+  // Reseta a página para 1 quando trocar de aba
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab]);
 
   // estado de carregamento (loading...)
   if (loading) {

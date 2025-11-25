@@ -7,10 +7,7 @@
     display: flex;
     flex-direction: column;
     background-color: var(--bg-gray);
-    
-    /* border-style: solid;
-    border-width: 1px;
-    border-color: white; */
+
     padding-bottom: 80px; /* espacamento inf para a barra nao cobrir a nav de pags */
 }
 
@@ -120,11 +117,11 @@ ORDEM DA PROPRIEDADE SHORTHAND:
 font: font-style > font-weight > font-size > font-family
 estilo peso tamanho familia
 */
-.inf h3 {
-    font: normal normal 1.2rem var(--font-text-futura), Arial, Helvetica sans-serif;
+.inf strong {
+    /* font: normal normal 1.2rem var(--font-text-futura), Arial, Helvetica sans-serif; */
+    font-size: 1.2rem;
     color: white;
   /* line-height: 1.3; */
-
 }
 
 

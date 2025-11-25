@@ -1,14 +1,10 @@
 // src/app/lib/tainacan-api.js
 export const UFSM_ACERV = "tainacan.ufsm.br/acervo-artistico";
 const collection = 2174;
-// const segundos=60, horasDia=24;
-
-
 // , {
 //       cache: "force-cache",
 //       next: { revalidate: 60 * 60 *24 },
 //     }
-
 function normalizObr(itemObr) {
   const thumb = itemObr.thumbnail;
   return {
@@ -17,28 +13,32 @@ function normalizObr(itemObr) {
     imgSrc: thumb?.full?.[0] 
             || thumb?.medium?.[0] 
             || null,
-    // artista: getArtist(obraItem),
     fullDataObra: itemObr,
   };
 }
 
-export async function getObras(perPage, page = 1) {
-  const BASE_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/collection/${collection}/items?perpage=${perPage}&paged=${page}&fetch_only=id,title,thumbnail,metadata`;
+export async function getObras(perPage, page = 1, categoriaId = null) {
+  let baseUrl = `https://${UFSM_ACERV}/wp-json/tainacan/v2/collection/${collection}/items?perpage=${perPage}&paged=${page}&fetch_only=id,title,thumbnail,metadata`;
+  // Se uma categoria for passada, adiciona o filtro de taxonomia (Designação: tnc_tax_4820)
+  if (categoriaId) {
+    baseUrl += `&taxquery[0][taxonomy]=tnc_tax_4820&taxquery[0][terms]=${categoriaId}`;
+  }
   
   try {
     // fetch (url, options);
-    const resposta = await fetch(BASE_URL);
+    const resposta = await fetch(baseUrl);
 
     if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
 
     const dados = await resposta.json();
-    if (!dados.items) throw new Error("Nenhuma obra encontrada");
+
+    if (!dados.items) 
+      return [];
 
     console.log(dados.items.length + "obras retornadas");
 
     return dados.items.map(normalizObr);
 
-    //console.log('obras formatadas', JSON.stringify(obrasFormatadas));
   } catch (erro) {
     console.error("Erro ao buscar obras:", erro);
     throw erro;
@@ -60,7 +60,7 @@ export async function buscaObraPorId(id) {
                   null;
   } catch (err) {
     console.error("erro ao buscar obra", err);
-    //throw err
+    throw err;
   }
 
   const META_BASE_URL = `https://${UFSM_ACERV}/wp-json/tainacan/v2/items/${id}`;
@@ -114,6 +114,7 @@ export async function buscaObraPorId(id) {
 
   } catch (err) {
     console.error("erro ao buscar obra", err);
+    throw err;
   }
 }
 

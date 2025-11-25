@@ -1,20 +1,36 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-//import { Collections } from '@mui/icons-material';
-import PaletteIcon from '@mui/icons-material/Palette';  //import { Event } from '@mui/icons-material';
+import { usePathname, useRouter } from 'next/navigation';
+
+// icons
+import PaletteIcon from '@mui/icons-material/Palette';
+import InfoIcon from '@mui/icons-material/Info'; // Novo ícone
 
 export function BottomNavMui() {     
     const pathname = usePathname(); // determinar item ativo, ajuste conforme as rotas
     const isHome = pathname === '/'; // Considera '/' como rota ativa para home/obras
 
+    const rota=useRouter();  // use router
+    const isDetalhe=pathname.startsWith('/obras'); // se esta em detalhe
+
+    const isAbout=pathname === '/sobre';
+
     const actvCor = '#ff5b04';
     const inativCor = '#bbb';
+
+    function handleHomeClick(e){
+        if(isDetalhe){
+            e.preventDefault();
+            rota.back();
+        }
+    }
+
     return (
         <nav className="bt-nav">
             <Link
                 href="/"
+                onClick={handleHomeClick} // interceptador
                 className={`nav-item${isHome ? ' nav-item--active' : ''}`}
                 aria-current={isHome ? 'page' : undefined}
                 aria-label="Ir para home"
@@ -24,9 +40,26 @@ export function BottomNavMui() {
                     style={{ color: isHome ? actvCor : inativCor }}
                 />
             </Link>
+
+            <Link
+                href="/sobre"
+                className={`nav-item${isAbout ? ' nav-item--active' : ''}`}
+                aria-current={isAbout ? 'page' : undefined}
+                aria-label="sobre o app"
+            >
+                <InfoIcon
+                    className='icon'
+                    style={{ color: isAbout ? actvCor : inativCor }}
+                />
+            </Link>
+
         </nav>
     );
 }
+
+
+//import { Collections } from '@mui/icons-material';
+//import { Event } from '@mui/icons-material';
 
 
 /*

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader } from "@/components/loader";
+import Link from "next/link";
 
 // icons do Material UI
 import CloseIcon from "@mui/icons-material/Close";
@@ -10,8 +11,19 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShareIcon from "@mui/icons-material/Share";
 
 // Ícones para os detalhes
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import BrushIcon from "@mui/icons-material/Brush";
+// Ícones que já devem estar no seu código:
+// import LocationOnIcon from "@mui/icons-material/LocationOn";
+
+
+// import CategoryIcon from "@mui/icons-material/Category"; // <-- JÁ EXISTENTE, mas ideal para TEMA
+
+// NOVAS IMPORTAÇÕES SUGERIDAS:
+import CropSquareIcon from '@mui/icons-material/CropSquare';
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import LocalOfferIcon from "@mui/icons-material/LocalOffer"; // <-- NOVO ÍCONE
+
+// import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+// import BrushIcon from "@mui/icons-material/Brush";
 import StraightenIcon from "@mui/icons-material/Straighten"; // Régua para dimensões
 import LayersIcon from "@mui/icons-material/Layers"; // Para suporte/material
 import CategoryIcon from "@mui/icons-material/Category"; // Para técnica
@@ -170,26 +182,46 @@ export default function Page() {
 
             <hr className={styles.divider} />
             <div className={styles.detailGrid}>
-              <DetalheObraItem
-                icon={<CategoryIcon fontSize="small" />}
-                lbl="Técnica"
-                val={obra.tec}
-              />
+              
               <DetalheObraItem
                 icon={<LayersIcon fontSize="small" />}
                 lbl="Suporte"
                 val={obra.sup}
               />
               <DetalheObraItem
+                icon={<CategoryIcon fontSize="small" />}
+                lbl="Técnica"
+                val={obra.tec}
+              />
+
+              <DetalheObraItem
                 icon={<StraightenIcon fontSize="small" />}
                 lbl="Dimensões"
                 val={obra.dimensoes}
               />
+
+              <DetalheObraItem
+                icon={<LocalOfferIcon fontSize="small" />}
+                lbl="Temáticas"
+                val={obra.tema}
+              />
+              <DetalheObraItem
+                icon={<ViewCarouselIcon fontSize="small" />}
+                lbl="Série"
+                val={obra.serie}
+              />
+              <DetalheObraItem
+                icon={<CropSquareIcon fontSize="small" />}
+                lbl="Moldura"
+                val={obra.mold}
+              />
+
               <DetalheObraItem
                 icon={<LocationOnIcon fontSize="small" />}
                 lbl="Localização"
                 val={obra.loc}
               />
+              <Link href={obra.url}>Link</Link>           
             </div>
 
             {/* <p><strong>Dimensoes: </strong>{obra.dimensoes}</p>
